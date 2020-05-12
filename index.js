@@ -1,38 +1,21 @@
-const http = require('http')
-const port = 3000
-const fs = require('fs')
+const request = require('request');
+const http = require('http');
 
-const server = http.createServer((req, resp) => {
-    resp.writeHead(200, {"Content-Type": 'text/html'})
-    let weatherData = http.get('http://api.openweathermap.org/data/2.5/forecast?q=Dublin&appid=083a831096c9e0c9c8d08c5c2c374a41')
-    fs.readFile("index.html", (error, data) => {
-    if(error){
-        resp.writeHead(404)
-        resp.write(weatherData)
-    }
-    else {
-        resp.write(data)
-    }
-    resp.end()
-    })
-})
+const hostname = '127.0.0.1';
+const port = 3000;
 
-server.listen(port, (error) => {
-    if (error){
-        console.log("Error : ", error)  
-    } 
-    else console.log("Server listening on port ", port)
-    }
-)
+var weather = request('http://api.openweathermap.org/data/2.5/weather?q=Dublin,ie&appid=083a831096c9e0c9c8d08c5c2c374a41', { json: true }, (err, res, body) => {
+  if (err) return console.log(err);
+  console.log(body.main)
+});
 
-// let weatherData = https.get('https://api.openweathermap.org/data/2.5/forecast?q=Dublin&appid=083a831096c9e0c9c8d08c5c2c374a41',(res) => {
-//     res.on('data', (d) => {
-//         process.stdout.write(d);
-//       });
-// })
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  let weather2 = JSON.stringify(weather)
+  res.end(weather2);
+});
 
-// let weatherRequest = (request, reponse)  => {
-//     request = 
-//     reponse.write(request.body);
-
-// }
+server.listen(port, hostname, () => {
+  console.log(`Server running at http://${hostname}:${port}/`);
+});
